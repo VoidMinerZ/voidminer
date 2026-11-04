@@ -1,0 +1,27 @@
+name: Build VoidMiner EXE
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+      - name: Build
+        run: >
+          pyinstaller --noconfirm --clean --windowed --name "VoidMiner Client"
+          --icon assets/icon.ico --add-data "assets;assets"
+          --collect-all customtkinter --collect-all minecraft_launcher_lib
+          --hidden-import keyring.backends.Windows main.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VoidMiner-Client-Windows
+          path: dist/VoidMiner Client
